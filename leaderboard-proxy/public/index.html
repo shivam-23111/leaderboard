@@ -147,27 +147,24 @@
     <script>
         // Robust time formatting
         function formatTime(timeInput) {
-            // Log input for debugging
             console.log('Time input:', timeInput);
-
-            // Handle different cases
-            if (!timeInput && timeInput !== 0) return "0:00"; // Null, undefined, or empty
+            if (!timeInput && timeInput !== 0) return "0:00";
             if (typeof timeInput === 'string') {
-                if (timeInput.includes(':')) return timeInput; // Already "min:sec"
+                if (timeInput.includes(':')) return timeInput;
                 const seconds = parseInt(timeInput, 10);
                 if (!isNaN(seconds)) {
                     const minutes = Math.floor(seconds / 60);
                     const secs = seconds % 60;
                     return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
                 }
-                return timeInput; // Return as-is if not convertible
+                return timeInput;
             }
             if (typeof timeInput === 'number' && !isNaN(timeInput)) {
                 const minutes = Math.floor(timeInput / 60);
                 const secs = timeInput % 60;
                 return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
             }
-            return "0:00"; // Fallback for invalid input
+            return "0:00";
         }
 
         async function fetchLeaderboard() {
@@ -177,7 +174,6 @@
                 const tbody = document.getElementById('leaderboard-body');
                 tbody.innerHTML = ''; // Clear previous data
 
-                // Log raw data for debugging
                 console.log('Raw data from fetch:', data);
 
                 data.slice(1) // Skip header row
@@ -191,7 +187,7 @@
                             <td>${formatTime(row[2])}</td> <!-- Time -->
                             <td>${row[3] || '0'}</td> <!-- Goals -->
                             <td>${row[4] || '-'}</td> <!-- MobileNumber -->
-                            <td>${index + 1}</td> <!-- Dynamic Rank -->
+                            <td>${row[5] || '-'}</td> <!-- Sheet Rank (column F) -->
                         `;
                         tbody.appendChild(tr);
                     });
