@@ -5,29 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
     <style>
-        /* General styling */
-        body {
-            margin: 0;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-        }
-
+        /* General table styling */
         table {
             width: 100%;
-            max-width: 100%; /* Prevent table from exceeding screen width */
             border-collapse: collapse;
             margin: 20px 0;
-            font-size: 14px; /* Slightly smaller font for mobile */
+            font-size: 16px;
         }
 
         th, td {
-            padding: 8px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
-            word-wrap: break-word; /* Wrap long text */
-            max-width: 0; /* Allow columns to shrink */
-            overflow: hidden; /* Hide overflow */
-            text-overflow: ellipsis; /* Add ... for truncated text */
         }
 
         /* Animation for rows */
@@ -55,8 +44,6 @@
                 text-align: right;
                 position: relative;
                 padding-left: 50%;
-                padding-right: 10px;
-                max-width: none; /* Reset max-width for block layout */
             }
             td:before {
                 content: attr(data-label);
