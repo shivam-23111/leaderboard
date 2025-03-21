@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robosoccer Rules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background: #0d0d1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.2) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .rules-card {
+            background: rgba(20, 20, 40, 0.9);
+            border: 3px solid #00ffcc;
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.7), inset 0 0 15px rgba(255, 0, 255, 0.4);
+            animation: fadeIn 1s ease-out, float 4s ease-in-out infinite;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            background: linear-gradient(45deg, #ff00ff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            font-size: 1em;
+            color: #e0e0e0;
+        }
+
+        li {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(40, 40, 80, 0.6);
+            border-radius: 5px;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        li:hover {
+            transform: scale(1.05);
+            background: rgba(0, 255, 204, 0.2);
+            color: #fff;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff00ff, #00ffcc);
+            border: 2px solid #00ffcc;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @media (max-width: 768px) {
+            .rules-card {
+                width: 95%;
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            ul {
+                font-size: 0.9em;
+            }
+            li {
+                padding: 8px;
+            }
+            .back-button {
+                padding: 8px 15px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rules-card">
+        <h2>Robosoccer Rules ⚽</h2>
+        <ul>
+            <li>🥇 <strong>Highest Goals Wins</strong> - Score more to rank higher!</li>
+            <li>⏰ <strong>Tie? Early Bird Ranks Up</strong> - Same goals? Player who came first will lead.</li>
+            <li>🔥 <strong>Multi-Play? Best Goals Count</strong> - Only your top score matters.</li>
+            <li>🏅 <strong>Top 3 Shine</strong> - 🥇 Rank 1 | 🥈 Rank 2 | 🥉 Rank 3</li>
+        </ul>
+        <button class="back-button" onclick="window.location.href='index.html'">Back</button>
+    </div>
+</body>
+</html>
