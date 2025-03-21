@@ -125,24 +125,70 @@
             }
             th, td {
                 padding: 8px;
-                font-size: 0.85em;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <style>
+        /* General table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Animation for rows */
+        tr {
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            thead {
+                display: none; /* Hide headers on small screens */
             }
-            table {
-                width: 100%;
-                box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+            }
+            td {
+                display: block;
+                text-align: right;
+                position: relative;
+                padding-left: 50%;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                font-weight: bold;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Signodes Robosoccer Leaderboard</h1>
-    <table id="leaderboard">
+    <table>
         <thead>
             <tr>
                 <th>Name</th>
                 <th>ERP</th>
                 <th>Goals</th>
-                <th>Mobile Number</th>
+                <th>Mobile</th>
                 <th>Rank</th>
             </tr>
         </thead>
@@ -150,33 +196,48 @@
     </table>
 
     <script>
-        // Store current leaderboard data
         let currentData = [];
 
         function updateLeaderboard(newData) {
             const tbody = document.getElementById('leaderboard-body');
-            const existingRows = Array.from(tbody.getElementsByTagName('tr'));
-            const existingIds = existingRows.map(row => row.dataset.id); // Unique ID for comparison
+            const sortedNewData = newData.slice(1).sort((a, b) => b[3] - a[3]); // Sort by goals
+            const newDataIds = new Set(sortedNewData.map(row => `${row[1]}-${row[4]}`)); // Unique IDs
 
-            // Sort new data by Goals (descending)
-            const sortedNewData = newData.slice(1).sort((a, b) => b[3] - a[3]);
-
-            // Identify new entries
+            // Step 1: Update or Add Rows
             sortedNewData.forEach((row, index) => {
-                const rowId = `${row[1]}-${row[4]}`; // Unique ID using ERP and Mobile Number
-                if (!existingIds.includes(rowId)) {
-                    // New entry found, add it
+                const rowId = `${row[1]}-${row[4]}`; // ERP + Mobile as unique ID
+                const existingRow = document.querySelector(`tr[data-id="${rowId}"]`);
+
+                if (existingRow) {
+                    // Update existing row
+                    existingRow.innerHTML = `
+                        <td data-label="Name">${row[0] || '-'}</td>
+                        <td data-label="ERP">${row[1] || '-'}</td>
+                        <td data-label="Goals">${row[3] || '0'}</td>
+                        <td data-label="Mobile">${row[4] || '-'}</td>
+                        <td data-label="Rank">${row[5] || '-'}</td>
+                    `;
+                } else {
+                    // Add new row
                     const tr = document.createElement('tr');
-                    tr.dataset.id = rowId; // Assign unique ID to row
+                    tr.dataset.id = rowId;
                     tr.style.animationDelay = `${index * 0.15}s`;
                     tr.innerHTML = `
-                        <td>${row[0] || '-'}</td> <!-- Name -->
-                        <td>${row[1] || '-'}</td> <!-- ERP -->
-                        <td>${row[3] || '0'}</td> <!-- Goals -->
-                        <td>${row[4] || '-'}</td> <!-- MobileNumber -->
-                        <td>${row[5] || '-'}</td> <!-- Sheet Rank -->
+                        <td data-label="Name">${row[0] || '-'}</td>
+                        <td data-label="ERP">${row[1] || '-'}</td>
+                        <td data-label="Goals">${row[3] || '0'}</td>
+                        <td data-label="Mobile">${row[4] || '-'}</td>
+                        <td data-label="Rank">${row[5] || '-'}</td>
                     `;
                     tbody.appendChild(tr);
+                }
+            });
+
+            // Step 2: Remove rows that no longer exist in the sheet
+            const allRows = tbody.querySelectorAll('tr');
+            allRows.forEach(row => {
+                if (!newDataIds.has(row.dataset.id)) {
+                    row.remove();
                 }
             });
 
@@ -200,17 +261,17 @@
                         tr.dataset.id = rowId;
                         tr.style.animationDelay = `${index * 0.15}s`;
                         tr.innerHTML = `
-                            <td>${row[0] || '-'}</td> <!-- Name -->
-                            <td>${row[1] || '-'}</td> <!-- ERP -->
-                            <td>${row[3] || '0'}</td> <!-- Goals -->
-                            <td>${row[4] || '-'}</td> <!-- MobileNumber -->
-                            <td>${row[5] || '-'}</td> <!-- Sheet Rank -->
+                            <td data-label="Name">${row[0] || '-'}</td>
+                            <td data-label="ERP">${row[1] || '-'}</td>
+                            <td data-label="Goals">${row[3] || '0'}</td>
+                            <td data-label="Mobile">${row[4] || '-'}</td>
+                            <td data-label="Rank">${row[5] || '-'}</td>
                         `;
                         tbody.appendChild(tr);
                     });
                     currentData = data.slice(1);
                 } else {
-                    // Subsequent loads: Check for new entries
+                    // Subsequent loads: Check for updates
                     updateLeaderboard(data);
                 }
             } catch (error) {
