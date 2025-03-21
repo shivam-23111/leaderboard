@@ -3,6 +3,7 @@
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signodes Robosoccer Leaderboard</title>
     <style>
         * {
@@ -19,9 +20,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 30px;
-            overflow: hidden;
+            padding: 20px;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -32,37 +33,36 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle, rgba(0, 255, 204, 0.1) 0%, transparent 70%);
-            animation: pulse 8s infinite alternate;
             z-index: -1;
         }
 
         h1 {
-            font-size: 2.8em;
+            font-size: 2em;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: linear-gradient(45deg, #00ffcc, #ff00ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
-            animation: neonGlow 1.5s infinite alternate;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
 
         table {
-            width: 90%;
+            width: 95%;
             max-width: 1200px;
             border-collapse: separate;
             border-spacing: 0;
             background: rgba(20, 20, 40, 0.8);
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
             overflow: hidden;
             border: 1px solid rgba(0, 255, 204, 0.2);
         }
 
         th, td {
-            padding: 18px;
+            padding: 12px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -72,28 +72,29 @@
             color: #fff;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 1em;
+            font-size: 0.9em;
             letter-spacing: 1px;
         }
 
         tr {
             background: rgba(30, 30, 60, 0.9);
-            transition: all 0.4s ease;
-            animation: slideUp 0.6s ease forwards;
+            transition: background 0.3s ease;
         }
 
         tr:nth-child(even) {
             background: rgba(40, 40, 80, 0.9);
         }
 
-        tr:hover {
-            background: rgba(0, 255, 204, 0.2);
-            transform: scale(1.03);
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+        @media (min-width: 768px) {
+            tr:hover {
+                background: rgba(0, 255, 204, 0.2);
+                transform: scale(1.03);
+                box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            }
         }
 
         td {
-            font-size: 1.1em;
+            font-size: 1em;
             color: #e0e0e0;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
         }
@@ -112,19 +113,24 @@
             color: #cd7f32;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.2); opacity: 0.2; }
-        }
-
-        @keyframes neonGlow {
-            0% { text-shadow: 0 0 10px #00ffcc, 0 0 20px #ff00ff; }
-            100% { text-shadow: 0 0 20px #00ffcc, 0 0 40px #ff00ff; }
-        }
-
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 0.85em;
+            }
+            table {
+                width: 100%;
+                box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            }
         }
     </style>
 </head>
@@ -135,7 +141,6 @@
             <tr>
                 <th>Name</th>
                 <th>ERP</th>
-                <th>Time (min:sec)</th>
                 <th>Goals</th>
                 <th>Mobile Number</th>
                 <th>Rank</th>
@@ -145,58 +150,75 @@
     </table>
 
     <script>
-        // Robust time formatting
-        function formatTime(timeInput) {
-            console.log('Time input:', timeInput);
-            if (!timeInput && timeInput !== 0) return "0:00";
-            if (typeof timeInput === 'string') {
-                if (timeInput.includes(':')) return timeInput;
-                const seconds = parseInt(timeInput, 10);
-                if (!isNaN(seconds)) {
-                    const minutes = Math.floor(seconds / 60);
-                    const secs = seconds % 60;
-                    return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+        // Store current leaderboard data
+        let currentData = [];
+
+        function updateLeaderboard(newData) {
+            const tbody = document.getElementById('leaderboard-body');
+            const existingRows = Array.from(tbody.getElementsByTagName('tr'));
+            const existingIds = existingRows.map(row => row.dataset.id); // Unique ID for comparison
+
+            // Sort new data by Goals (descending)
+            const sortedNewData = newData.slice(1).sort((a, b) => b[3] - a[3]);
+
+            // Identify new entries
+            sortedNewData.forEach((row, index) => {
+                const rowId = `${row[1]}-${row[4]}`; // Unique ID using ERP and Mobile Number
+                if (!existingIds.includes(rowId)) {
+                    // New entry found, add it
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = rowId; // Assign unique ID to row
+                    tr.style.animationDelay = `${index * 0.15}s`;
+                    tr.innerHTML = `
+                        <td>${row[0] || '-'}</td> <!-- Name -->
+                        <td>${row[1] || '-'}</td> <!-- ERP -->
+                        <td>${row[3] || '0'}</td> <!-- Goals -->
+                        <td>${row[4] || '-'}</td> <!-- MobileNumber -->
+                        <td>${row[5] || '-'}</td> <!-- Sheet Rank -->
+                    `;
+                    tbody.appendChild(tr);
                 }
-                return timeInput;
-            }
-            if (typeof timeInput === 'number' && !isNaN(timeInput)) {
-                const minutes = Math.floor(timeInput / 60);
-                const secs = timeInput % 60;
-                return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
-            }
-            return "0:00";
+            });
+
+            // Update current data
+            currentData = sortedNewData;
         }
 
         async function fetchLeaderboard() {
             try {
                 const response = await fetch('https://script.google.com/macros/s/AKfycbwlnksVjm3_FbV_vSb2je9mEJqgE3VLAwVckJqT5R3pX416bx5Hh2xDW3tMIU8CxDjb/exec');
                 const data = await response.json();
-                const tbody = document.getElementById('leaderboard-body');
-                tbody.innerHTML = ''; // Clear previous data
-
                 console.log('Raw data from fetch:', data);
 
-                data.slice(1) // Skip header row
-                    .sort((a, b) => b[3] - a[3]) // Sort by Goals (descending)
-                    .forEach((row, index) => {
+                // Initial load or update with new entries
+                if (currentData.length === 0) {
+                    // First load: Populate entire table
+                    const tbody = document.getElementById('leaderboard-body');
+                    data.slice(1).sort((a, b) => b[3] - a[3]).forEach((row, index) => {
                         const tr = document.createElement('tr');
-                        tr.style.animationDelay = `${index * 0.1}s`; // Staggered entry
+                        const rowId = `${row[1]}-${row[4]}`; // Unique ID
+                        tr.dataset.id = rowId;
+                        tr.style.animationDelay = `${index * 0.15}s`;
                         tr.innerHTML = `
                             <td>${row[0] || '-'}</td> <!-- Name -->
                             <td>${row[1] || '-'}</td> <!-- ERP -->
-                            <td>${formatTime(row[2])}</td> <!-- Time -->
                             <td>${row[3] || '0'}</td> <!-- Goals -->
                             <td>${row[4] || '-'}</td> <!-- MobileNumber -->
-                            <td>${row[5] || '-'}</td> <!-- Sheet Rank (column F) -->
+                            <td>${row[5] || '-'}</td> <!-- Sheet Rank -->
                         `;
                         tbody.appendChild(tr);
                     });
+                    currentData = data.slice(1);
+                } else {
+                    // Subsequent loads: Check for new entries
+                    updateLeaderboard(data);
+                }
             } catch (error) {
                 console.error('Fetch error:', error);
             }
         }
 
-        // Auto-update every 5 seconds
+        // Check for updates every 5 seconds
         setInterval(fetchLeaderboard, 5000);
         fetchLeaderboard(); // Initial load
     </script>
