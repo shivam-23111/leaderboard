@@ -7,7 +7,7 @@ app.use(express.static('public')); // Serve static files like index.html
 
 app.get('/leaderboard', async (req, res) => {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbx3Np34tAANFL-5mwEMN7sMXAeuex7eyW-aVEgudz1on7vjb319yUkQHBA39iVM_aqb/exec');
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyKkuWb1yUQxEtuwlWSB50779xSiPYZx_wsEW6Q9wfXklnms_WNFrDMv78SMl7u9nlO/exec');
     const data = await response.json();
     res.json(data);
   } catch (error) {
