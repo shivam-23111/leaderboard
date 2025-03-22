@@ -23,7 +23,6 @@
             padding: 5px;
             position: relative;
             overflow-x: hidden;
-            will-change: transform;
         }
 
         body::before {
@@ -77,27 +76,33 @@
             width: 100%;
             max-width: 800px;
             margin-top: 50px;
+            height: calc(100vh - 70px); /* Adjust for padding and rules button */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .table-wrapper {
+            flex: 1; /* Take remaining space after h1 */
+            overflow-y: auto; /* Scroll only table content */
             overflow-x: hidden;
+            border-radius: 10px;
+            background: rgba(20, 20, 40, 0.8);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            border: 1px solid rgba(0, 255, 204, 0.2);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: rgba(20, 20, 40, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-            border: 1px solid rgba(0, 255, 204, 0.2);
             table-layout: fixed;
         }
 
-        th, td {
-            padding: 6px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 16.66%;
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: rgba(20, 20, 40, 0.8); /* Match wrapper background */
         }
 
         th {
@@ -107,6 +112,14 @@
             text-transform: uppercase;
             font-size: 0.7em;
             letter-spacing: 0.5px;
+            padding: 6px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            width: 16.66%;
+        }
+
+        tbody {
+            width: 100%;
         }
 
         tr {
@@ -126,9 +139,16 @@
         }
 
         td {
+            padding: 6px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-size: 0.7em;
             color: #e0e0e0;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+            width: 16.66%;
         }
 
         tr:nth-child(1) {
@@ -167,9 +187,7 @@
             }
             .table-container {
                 margin-top: 40px;
-            }
-            table {
-                width: 100%;
+                height: calc(100vh - 60px); /* Adjust for smaller header */
             }
             th, td {
                 padding: 3px;
@@ -197,19 +215,21 @@
     <button class="rules-button" onclick="window.location.href='rules.html'">Rules ⚽</button>
     <div class="table-container">
         <h1>Signodes Robosoccer Leaderboard</h1>
-        <table id="leaderboard">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>ERP</th>
-                    <th>Goals</th>
-                    <th>Mobile</th>
-                    <th>Rank</th>
-                    <th>Entry Time</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-body"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ERP</th>
+                        <th>Goals</th>
+                        <th>Mobile</th>
+                        <th>Rank</th>
+                        <th>Entry Time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
