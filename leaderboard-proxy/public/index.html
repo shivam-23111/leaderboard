@@ -215,7 +215,7 @@
     <script>
         // Store current leaderboard data
         let currentData = [];
-        let isFirstLoad = true; // Track if it's the first load
+        let isFirstLoad = true;
 
         function processData(newData) {
             // Step 1: Get all rows, excluding header
@@ -255,7 +255,9 @@
             // Map of previous data by rowId
             const prevDataMap = new Map(currentData.map(row => [`${row[1]}-${row[4]}`, row]));
 
-            // Update or add rows
+            // Clear tbody and rebuild in rank order
+            tbody.innerHTML = '';
+
             sortedData.forEach((row, index) => {
                 const rowId = `${row[1]}-${row[4]}`; // ERP-Mobile as unique ID
                 const rank = parseInt(row[5]) || '-';
@@ -273,33 +275,34 @@
                     <td>${new Date(row[6]).toLocaleTimeString()}</td>
                 `;
 
-                const existingRow = tbody.querySelector(`tr[data-id="${rowId}"]`);
-                if (existingRow) {
-                    // Update existing row without animation
-                    existingRow.innerHTML = rowHtml;
-                } else {
-                    // Add new row with animation (only on first load or new entry)
-                    const tr = document.createElement('tr');
-                    tr.dataset.id = rowId;
-                    tr.innerHTML = rowHtml;
-                    if (isFirstLoad || !prevDataMap.has(rowId)) {
-                        tr.classList.add('new-entry');
-                        tr.style.animationDelay = `${index * 0.1}s`;
-                    }
-                    tbody.appendChild(tr);
-                }
-            });
+                const tr = document.createElement('tr');
+                tr.dataset.id = rowId;
+                tr.innerHTML = rowHtml;
 
-            // Remove rows that are no longer in sortedData
-            Array.from(tbody.children).forEach(row => {
-                const rowId = row.dataset.id;
-                if (!sortedData.some(r => `${r[1]}-${r[4]}` === rowId)) {
-                    row.remove();
+                // Apply animation only on first load or new entries
+                if (isFirstLoad || !prevDataMap.has(rowId)) {
+                    tr.classList.add('new-entry');
+                    tr.style.animationDelay = `${index * 0.1}s`;
+                }
+
+                // Insert row at correct position based on rank
+                const existingRows = tbody.querySelectorAll('tr');
+                let inserted = false;
+                for (let i = 0; i < existingRows.length; i++) {
+                    const existingRank = parseInt(existingRows[i].querySelector('td:nth-child(5)').textContent);
+                    if (rank < existingRank) {
+                        tbody.insertBefore(tr, existingRows[i]);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) {
+                    tbody.appendChild(tr); // Append at end if no lower rank found
                 }
             });
 
             currentData = sortedData;
-            isFirstLoad = false; // After first load, set to false
+            isFirstLoad = false;
             console.log('Updated table with data:', sortedData);
         }
 
@@ -313,7 +316,7 @@
                 if (!data || data.length <= 1) {
                     tbody.innerHTML = '<tr><td colspan="6" class="no-data">Leaderboard is not live now.....</td></tr>';
                     currentData = [];
-                    isFirstLoad = true; // Reset for next valid fetch
+                    isFirstLoad = true;
                     return;
                 }
 
