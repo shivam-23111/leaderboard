@@ -150,6 +150,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .new-entry {
+            animation: slideUp 0.5s ease forwards;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1em;
@@ -211,6 +215,7 @@
     <script>
         // Store current leaderboard data
         let currentData = [];
+        let isFirstLoad = true; // Track if it's the first load
 
         function processData(newData) {
             // Step 1: Get all rows, excluding header
@@ -235,16 +240,9 @@
                 return a.entryTime - b.entryTime;
             }).map(item => item.row);
 
-            // Step 4: Assign ranks sequentially (1st, 2nd, 3rd, etc.) and shift
+            // Step 4: Assign ranks sequentially
             sortedPlayers.forEach((row, index) => {
                 row[5] = index + 1; // Assign new rank starting from 1
-            });
-
-            // Step 5: Sort by new assigned rank
-            sortedPlayers.sort((a, b) => {
-                const rankA = parseInt(a[5]);
-                const rankB = parseInt(b[5]);
-                return rankA - rankB;
             });
 
             return sortedPlayers;
@@ -253,21 +251,20 @@
         function updateLeaderboard(newData) {
             const tbody = document.getElementById('leaderboard-body');
             const sortedData = processData(newData);
-            tbody.innerHTML = '';
 
+            // Map of previous data by rowId
+            const prevDataMap = new Map(currentData.map(row => [`${row[1]}-${row[4]}`, row]));
+
+            // Update or add rows
             sortedData.forEach((row, index) => {
-                const rowId = `${row[1]}-${row[4]}`;
+                const rowId = `${row[1]}-${row[4]}`; // ERP-Mobile as unique ID
                 const rank = parseInt(row[5]) || '-';
                 let nameDisplay = row[0] || '-';
                 if (rank === 1) nameDisplay = `🥇 ${nameDisplay}`;
                 else if (rank === 2) nameDisplay = `🥈 ${nameDisplay}`;
                 else if (rank === 3) nameDisplay = `🥉 ${nameDisplay}`;
 
-                const tr = document.createElement('tr');
-                tr.dataset.id = rowId;
-                tr.style.animation = `slideUp 0.5s ease forwards`;
-                tr.style.animationDelay = `${index * 0.1}s`;
-                tr.innerHTML = `
+                const rowHtml = `
                     <td>${nameDisplay}</td>
                     <td>${row[1] || '-'}</td>
                     <td>${row[3] || '0'}</td>
@@ -275,10 +272,34 @@
                     <td>${rank}</td>
                     <td>${new Date(row[6]).toLocaleTimeString()}</td>
                 `;
-                tbody.appendChild(tr);
+
+                const existingRow = tbody.querySelector(`tr[data-id="${rowId}"]`);
+                if (existingRow) {
+                    // Update existing row without animation
+                    existingRow.innerHTML = rowHtml;
+                } else {
+                    // Add new row with animation (only on first load or new entry)
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = rowId;
+                    tr.innerHTML = rowHtml;
+                    if (isFirstLoad || !prevDataMap.has(rowId)) {
+                        tr.classList.add('new-entry');
+                        tr.style.animationDelay = `${index * 0.1}s`;
+                    }
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // Remove rows that are no longer in sortedData
+            Array.from(tbody.children).forEach(row => {
+                const rowId = row.dataset.id;
+                if (!sortedData.some(r => `${r[1]}-${r[4]}` === rowId)) {
+                    row.remove();
+                }
             });
 
             currentData = sortedData;
+            isFirstLoad = false; // After first load, set to false
             console.log('Updated table with data:', sortedData);
         }
 
@@ -292,6 +313,7 @@
                 if (!data || data.length <= 1) {
                     tbody.innerHTML = '<tr><td colspan="6" class="no-data">Leaderboard is not live now.....</td></tr>';
                     currentData = [];
+                    isFirstLoad = true; // Reset for next valid fetch
                     return;
                 }
 
